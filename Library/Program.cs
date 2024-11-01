@@ -21,36 +21,34 @@ namespace Library
 
         static void Main(string[] args)
 		{
+			//InsertAuthor("Roger", "Zelazny");
+			//SelectAuthors();
+			InsertBook("Nine Princes in Amber", "Roger", "Zelazny");
+
 			List<string> fields = new List<string> { "Books.title", "Authors.first_name", "Authors.last_name" };
 			List<string> tables = new List<string> { "Books", "Authors" };
-
 			Select(fields, tables, new List<string> { "Books.author_id", "Authors.id" });
-			//SelectAuthors();
 
-			//string comm = "SELECT Books.title, Authors.first_name, Authors.last_name FROM Books, Authors WHERE Books.author_id = Authors.id";
-			//Console.WriteLine();
-			//SqlCommand command = new SqlCommand(comm, connection);
+		}
 
-			//connection.Open();
-			//SqlDataReader reader = command.ExecuteReader();
-			//if (reader.HasRows)
-			//{
-			//	for (int i = 0; i < reader.FieldCount; i++)
-			//	{
-			//		Console.Write(reader.GetName(i).PadRight(32));
-			//	}
-			//	Console.WriteLine();
+		static void InsertAuthor(string firstName, string lastName)
+		{
+			string cmd = $"INSERT INTO Authors(first_name, last_name) VALUES('{firstName}', '{lastName}')";
+			SqlCommand command = new SqlCommand(cmd, connection);
+			connection.Open();
+			command.ExecuteNonQuery();
+			connection.Close();
+		}
 
-			//	while (reader.Read())
-			//	{
-			//		for (int i = 0; i < reader.FieldCount; i++)
-			//		{
-			//			Console.Write(reader.GetValue(i).ToString().PadRight(32));
-			//		}
-			//		Console.WriteLine();
-			//	}
-			//}
-			//connection.Close();
+		static void InsertBook(string title, string firstName, string lastName)
+		{
+			int authorId = GetAuthorID(firstName, lastName);
+			string commandString = $"INSERT INTO Books(title, author_id) VALUES('{title}', {authorId})";
+
+			SqlCommand command = new SqlCommand(commandString, connection);
+			connection.Open();
+			command.ExecuteNonQuery();
+			connection.Close();
 		}
 
 		static void SelectAuthors()
@@ -78,7 +76,19 @@ namespace Library
 					Console.WriteLine();
 				}
 			}
+			reader.Close();
 			connection.Close();
+		}
+
+		static int GetAuthorID(string firstName, string lastName)
+		{
+			string commandString = $"(SELECT id FROM Authors WHERE first_name = '{firstName}' AND last_name = '{lastName}')";
+			SqlCommand command = new SqlCommand(commandString, connection);
+			connection.Open();
+			int authorId = Convert.ToInt32(command.ExecuteScalar());
+			connection.Close();
+			Console.WriteLine(authorId);
+			return authorId;
 		}
 
 
@@ -97,13 +107,16 @@ namespace Library
 				commandText += tables[i];
 				if (i < tables.Count - 1) { commandText += ", "; }
 			}
-			commandText += " WHERE ";
-			for (int i = 0; i < join_on.Length; i++)
+			if (join_on.Length > 0)
 			{
-				commandText += $"{join_on[i][0]} = {join_on[i][1]}";
-				if (i < join_on.Length - 1) { commandText += " AND "; }
+				commandText += " WHERE ";
+				for (int i = 0; i < join_on.Length; i++)
+				{
+					commandText += $"{join_on[i][0]} = {join_on[i][1]}";
+					if (i < join_on.Length - 1) { commandText += " AND "; }
+				}
 			}
-
+			
 			//Console.WriteLine(commandText);
 
 			SqlCommand command = new SqlCommand();
@@ -130,6 +143,7 @@ namespace Library
 					Console.WriteLine();
 				}
 			}
+			reader.Close();
 			connection.Close();
 		}
 	}
