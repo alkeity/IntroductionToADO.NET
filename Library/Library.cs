@@ -20,8 +20,12 @@ namespace Library
 
         public static void InsertAuthor(string firstName, string lastName)
 		{
-			string cmd = $"INSERT INTO Authors(first_name, last_name) VALUES('{firstName}', '{lastName}')";
-			SqlCommand command = new SqlCommand(cmd, connection);
+			string cmd = $"INSERT INTO Authors(first_name, last_name) VALUES('@first_name', '@last_name')";
+			SqlCommand command = new SqlCommand();
+			command.Parameters.AddWithValue("@first_name", firstName);
+			command.Parameters.AddWithValue("@last_name", lastName);
+			command.Connection = connection;
+			command.CommandText = cmd;
 			connection.Open();
 			command.ExecuteNonQuery();
 			connection.Close();
@@ -30,9 +34,13 @@ namespace Library
 		public static void InsertBook(string title, string firstName, string lastName)
 		{
 			int authorId = GetAuthorID(firstName, lastName);
-			string commandString = $"INSERT INTO Books(title, author_id) VALUES('{title}', {authorId})";
+			string commandString = $"INSERT INTO Books(title, author_id) VALUES('@title', @author_id)";
 
-			SqlCommand command = new SqlCommand(commandString, connection);
+			SqlCommand command = new SqlCommand();
+			command.CommandText = commandString;
+			command.Connection = connection;
+			command.Parameters.AddWithValue("@title", title);
+			command.Parameters.AddWithValue("@author_id", authorId);
 			connection.Open();
 			command.ExecuteNonQuery();
 			connection.Close();
@@ -52,34 +60,38 @@ namespace Library
 			return authorId;
 		}
 
-		public static void Select(List<string> fields, List<string> tables, params List<string>[] join_on)
+		public static void Select(List<string> fields, List<string> tables, params List<string>[] joinOn)
 		{
 			int padding = 32;
-			string commandText = "SELECT ";
+			string commandText = "SELECT @fields FROM @tables";
+			string fieldsString = "", tablesString = "", joinOnString = "";
 			for (int i = 0; i < fields.Count; i++)
 			{
-				commandText += fields[i];
-				if (i < fields.Count - 1) { commandText += ", "; }
+				fieldsString += fields[i];
+				if (i < fields.Count - 1) { fieldsString += ", "; }
 			}
 			commandText += " FROM ";
 			for (int i = 0; i < tables.Count; i++)
 			{
-				commandText += tables[i];
-				if (i < tables.Count - 1) { commandText += ", "; }
+				tablesString += tables[i];
+				if (i < tables.Count - 1) { tablesString += ", "; }
 			}
-			if (join_on.Length > 0)
+			if (joinOn.Length > 0)
 			{
-				commandText += " WHERE ";
-				for (int i = 0; i < join_on.Length; i++)
+				commandText += " WHERE @join_on";
+				for (int i = 0; i < joinOn.Length; i++)
 				{
-					commandText += $"{join_on[i][0]} = {join_on[i][1]}";
-					if (i < join_on.Length - 1) { commandText += " AND "; }
+					joinOnString += $"{joinOn[i][0]} = {joinOn[i][1]}";
+					if (i < joinOn.Length - 1) { joinOnString += " AND "; }
 				}
 			}
 
 			SqlCommand command = new SqlCommand();
 			command.Connection = connection;
 			command.CommandText = commandText;
+			command.Parameters.AddWithValue("@fields", fieldsString);
+			command.Parameters.AddWithValue("@tables", tablesString);
+			command.Parameters.AddWithValue("@join_on", joinOnString);
 
 			connection.Open();
 
