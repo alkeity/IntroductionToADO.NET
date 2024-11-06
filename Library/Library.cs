@@ -20,7 +20,7 @@ namespace Library
 
         public static void InsertAuthor(string firstName, string lastName)
 		{
-			string cmd = $"INSERT INTO Authors(first_name, last_name) VALUES('@first_name', '@last_name')";
+			string cmd = $"INSERT INTO Authors(first_name, last_name) VALUES(@first_name, @last_name)";
 			SqlCommand command = new SqlCommand();
 			command.Parameters.AddWithValue("@first_name", firstName);
 			command.Parameters.AddWithValue("@last_name", lastName);
@@ -34,7 +34,7 @@ namespace Library
 		public static void InsertBook(string title, string firstName, string lastName)
 		{
 			int authorId = GetAuthorID(firstName, lastName);
-			string commandString = $"INSERT INTO Books(title, author_id) VALUES('@title', @author_id)";
+			string commandString = $"INSERT INTO Books(title, author_id) VALUES(@title, @author_id)";
 
 			SqlCommand command = new SqlCommand();
 			command.CommandText = commandString;
@@ -63,36 +63,27 @@ namespace Library
 		public static void Select(List<string> fields, List<string> tables, params List<string>[] joinOn)
 		{
 			int padding = 32;
-			string commandText = "SELECT @fields FROM @tables";
-			string fieldsString = "", tablesString = "", joinOnString = "";
+			string commandText = "SELECT ";
 			for (int i = 0; i < fields.Count; i++)
 			{
-				fieldsString += fields[i];
-				if (i < fields.Count - 1) { fieldsString += ", "; }
+				commandText += fields[i];
+				if (i < fields.Count - 1) { commandText += ", "; }
 			}
 			commandText += " FROM ";
 			for (int i = 0; i < tables.Count; i++)
 			{
-				tablesString += tables[i];
-				if (i < tables.Count - 1) { tablesString += ", "; }
+				commandText += tables[i];
+				if (i < tables.Count - 1) { commandText += ", "; }
 			}
-			if (joinOn.Length > 0)
+			commandText += " WHERE ";
+			for (int i = 0; i < joinOn.Length; i++)
 			{
-				commandText += " WHERE @join_on";
-				for (int i = 0; i < joinOn.Length; i++)
-				{
-					joinOnString += $"{joinOn[i][0]} = {joinOn[i][1]}";
-					if (i < joinOn.Length - 1) { joinOnString += " AND "; }
-				}
+				commandText += $"{joinOn[i][0]} = {joinOn[i][1]}";
+				if (i < joinOn.Length - 1) { commandText += " AND "; }
 			}
-
 			SqlCommand command = new SqlCommand();
 			command.Connection = connection;
 			command.CommandText = commandText;
-			command.Parameters.AddWithValue("@fields", fieldsString);
-			command.Parameters.AddWithValue("@tables", tablesString);
-			command.Parameters.AddWithValue("@join_on", joinOnString);
-
 			connection.Open();
 
 			SqlDataReader reader = command.ExecuteReader();
@@ -113,7 +104,6 @@ namespace Library
 					Console.WriteLine();
 				}
 			}
-			reader.Close();
 			connection.Close();
 		}
 

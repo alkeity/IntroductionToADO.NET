@@ -22,9 +22,9 @@ namespace Library
 			//SelectAuthors();
 			//Library.InsertBook("Nine Princes in Amber", "Roger", "Zelazny");
 
-			//List<string> fields = new List<string> { "Books.title", "Authors.first_name", "Authors.last_name" };
-			//List<string> tables = new List<string> { "Books", "Authors" };
-			//Library.Select(fields, tables, new List<string> { "Books.author_id", "Authors.id" });
+			List<string> fields = new List<string> { "Books.title", "Authors.first_name", "Authors.last_name" };
+			List<string> tables = new List<string> { "Books", "Authors" };
+			Library.Select(fields, tables, new List<string> { "Books.author_id", "Authors.id" });
 
 		}
 	}
