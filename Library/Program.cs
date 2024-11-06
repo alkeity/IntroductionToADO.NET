@@ -19,8 +19,8 @@ namespace Library
         static void Main(string[] args)
 		{
 			//Console.WriteLine(Library.GetAuthorID("Roger", "Zelazny"));
-			//SelectAuthors();
-			Library.InsertBook("Nine Princes in Amber", "Roger", "Zelazny");
+			Library.SelectAuthors();
+			//Library.InsertBook("Nine Princes in Amber", "Roger", "Zelazny");
 
 			//List<string> fields = new List<string> { "Books.title", "Authors.first_name", "Authors.last_name" };
 			//List<string> tables = new List<string> { "Books", "Authors" };
