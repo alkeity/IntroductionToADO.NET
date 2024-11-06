@@ -22,8 +22,8 @@ namespace Library
 		{
 			string cmd = $"INSERT INTO Authors(first_name, last_name) VALUES(@first_name, @last_name)";
 			SqlCommand command = new SqlCommand();
-			command.Parameters.AddWithValue("@first_name", firstName);
-			command.Parameters.AddWithValue("@last_name", lastName);
+			command.Parameters.Add("@first_name", SqlDbType.NVarChar, 150).Value = firstName;
+			command.Parameters.Add("@last_name", SqlDbType.NVarChar, 150).Value = lastName;
 			command.Connection = connection;
 			command.CommandText = cmd;
 			connection.Open();
@@ -34,13 +34,17 @@ namespace Library
 		public static void InsertBook(string title, string firstName, string lastName)
 		{
 			int authorId = GetAuthorID(firstName, lastName);
-			string commandString = $"INSERT INTO Books(title, author_id) VALUES(@title, @author_id)";
+			string commandString = $@"
+									IF NOT EXISTS(SELECT id FROM books WHERE title = @title AND author_id = @author_id)
+									BEGIN
+									INSERT INTO Books(title, author_id) VALUES(@title, @author_id)
+									END";
 
 			SqlCommand command = new SqlCommand();
 			command.CommandText = commandString;
 			command.Connection = connection;
-			command.Parameters.AddWithValue("@title", title);
-			command.Parameters.AddWithValue("@author_id", authorId);
+			command.Parameters.Add("@title", SqlDbType.NVarChar, 256).Value = title;
+			command.Parameters.Add("@author_id", SqlDbType.Int).Value = authorId;
 			connection.Open();
 			command.ExecuteNonQuery();
 			connection.Close();
@@ -48,12 +52,11 @@ namespace Library
 
 		public static int GetAuthorID(string firstName, string lastName)
 		{
-			string commandString = $"(SELECT id FROM Authors WHERE first_name = @first_name AND last_name = @last_name)";
 			SqlCommand command = new SqlCommand();
 			command.Connection = connection;
-			command.Parameters.AddWithValue("@first_name", firstName);
-			command.Parameters.AddWithValue("@last_name", lastName);
-			command.CommandText = commandString;
+			command.Parameters.Add("@first_name", SqlDbType.NVarChar, 150).Value = firstName;
+			command.Parameters.Add("@last_name", SqlDbType.NVarChar, 150).Value = lastName;
+			command.CommandText = $"(SELECT id FROM Authors WHERE first_name = @first_name AND last_name = @last_name)";
 			connection.Open();
 			int authorId = Convert.ToInt32(command.ExecuteScalar());
 			connection.Close();
