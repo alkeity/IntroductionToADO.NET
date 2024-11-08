@@ -22,26 +22,57 @@ namespace Library2
 			connectionString = ConfigurationManager.ConnectionStrings["LibraryConnectionString"].ConnectionString;
 			connection = new SqlConnection(connectionString);
 			InitializeComponent();
+			LoadTablesToComboBox();
+		}
+
+		void LoadTablesToComboBox()
+		{
+			string cmdStr = "SELECT table_name FROM information_schema.tables";
+			SqlCommand cmd = new SqlCommand(cmdStr, connection);
+			connection.Open();
+			SqlDataReader reader = cmd.ExecuteReader();
+			if (reader.HasRows)
+			{
+				while (reader.Read())
+				{
+					tbQuery.Items.Add(reader[0]);
+				}
+			}
+			reader.Close();
+			connection.Close();
+		}
+
+		void SelectAllFromTable(string tableName)
+		{
+			string cmdStr = $"SELECT * FROM [{tableName}]";
+			SqlCommand cmd = new SqlCommand(cmdStr, connection);
+			connection.Open();
+			SqlDataReader reader = cmd.ExecuteReader();
+			if (reader.HasRows)
+			{
+				DataTable table = new DataTable();
+				for (int i = 0; i < reader.FieldCount; i++) table.Columns.Add(reader.GetName(i));
+				while (reader.Read())
+				{
+					DataRow row = table.NewRow();
+					for (int i = 0; i < reader.FieldCount; i++) row[i] = reader[i];
+					table.Rows.Add(row);
+				}
+				dataGridView.DataSource = table;
+			}
+			reader.Close();
+			connection.Close();
 		}
 
 		private void btnExecute_Click(object sender, EventArgs e)
 		{
-			string cmdString = tbQuery.Text;
-			SqlCommand cmd = new SqlCommand(cmdString, connection);
-			connection.Open();
-			DataTable dt = new DataTable();
-			SqlDataReader dr = cmd.ExecuteReader();
-			for (int i = 0; i < dr.FieldCount; i++) dt.Columns.Add(dr.GetName(i));
+			SelectAllFromTable(tbQuery.Text);
+		}
 
-			while (dr.Read())
-			{
-				DataRow row = dt.NewRow();
-				for (int i = 0; i < dr.FieldCount; i++) row[i] = dr[i];
-				dt.Rows.Add(row);
-			}
-			dr.Close();
-			connection.Close();
-			dataGridView.DataSource = dt;
+		private void tbQuery_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			dataGridView.DataSource = null;
+			SelectAllFromTable(tbQuery.Text);
 		}
 	}
 }

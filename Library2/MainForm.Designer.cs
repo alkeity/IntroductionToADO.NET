@@ -59,15 +59,13 @@
 			// 
 			// tbQuery
 			// 
+			this.tbQuery.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.tbQuery.FormattingEnabled = true;
-			this.tbQuery.Items.AddRange(new object[] {
-            "SELECT * FROM Authors",
-            "SELECT * FROM Books",
-            "SELECT * FROM Genres"});
 			this.tbQuery.Location = new System.Drawing.Point(12, 13);
 			this.tbQuery.Name = "tbQuery";
 			this.tbQuery.Size = new System.Drawing.Size(383, 21);
 			this.tbQuery.TabIndex = 3;
+			this.tbQuery.SelectedIndexChanged += new System.EventHandler(this.tbQuery_SelectedIndexChanged);
 			// 
 			// MainForm
 			// 
