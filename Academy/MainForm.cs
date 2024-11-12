@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
@@ -13,23 +14,22 @@ namespace Academy
 {
 	public partial class MainForm : Form
 	{
-		DataTable dtStudents;
-		DataTable dtGroups;
-		DataTable dtSubjects;
-		DataTable dtTeachers;
-		List<string> allGroups;
+		DataTable dtSource;
+
+		HashSet<string> allGroups;
 		public MainForm()
 		{
 			InitializeComponent();
 			this.Icon = Icon.ExtractAssociatedIcon(Assembly.GetEntryAssembly().Location);
-			allGroups = new List<string>();
-			LoadDataSources();
-			LoadFilterOptions();
+			allGroups = new HashSet<string>();
+			dtSource = new DataTable();
+			LoadStudents();
 		}
-
-		void LoadDataSources()
+		
+		void LoadStudents()
 		{
-			dtStudents = Connector.Select(
+			dtSource.Clear();
+			dtSource = Connector.Select(
 						"[Name] = FORMATMESSAGE('%s %s %s', last_name, first_name, middle_name)," +
 						"[Age] = DATEDIFF(day, birth_date, GETDATE()) / 365," +
 						"[Group] = group_name," +
@@ -37,38 +37,66 @@ namespace Academy
 						"Students, Groups, StudyFields",
 						"Students.group_id = Groups.id AND Groups.study_field_id = StudyFields.id"
 				);
-			dtGroups = Connector.Select(
+			statusStripCount.Text = $"Amount of students: {dtSource.Rows.Count}";
+			dataGridView.DataSource = dtSource;
+			LoadFilterOptionsForStudents();
+		}
+
+		void LoadGroups()
+		{
+			dtSource.Clear();
+			dtSource = Connector.Select(
 						"[Name] = group_name," +
 						"[Study Field] = study_field_name",
 						"Groups, StudyFields",
 						"Groups.study_field_id = StudyFields.id"
 				);
-			dtSubjects = Connector.Select(
+			statusStripCount.Text = $"Amount of groups: {dtSource.Rows.Count}";
+			dataGridView.DataSource = dtSource;
+		}
+
+		void LoadSubjects()
+		{
+			dtSource.Clear();
+			dtSource = Connector.Select(
 						"[Name] = subject_name," +
 						"[Amount of lessons] = amount_of_hours," +
 						"[Report type] = report_type_name",
 						"Subjects, ReportTypes",
 						"Subjects.report_type_id = ReportTypes.id"
 				);
-			dtTeachers = Connector.Select(
+			statusStripCount.Text = $"Amount of subjects: {dtSource.Rows.Count}";
+			dataGridView.DataSource = dtSource;
+		}
+
+		void LoadTeachers()
+		{
+			dtSource.Clear();
+			dtSource = Connector.Select(
 						"[Name] = FORMATMESSAGE('%s %s %s', last_name, first_name, middle_name)," +
 						"[Age] = DATEDIFF(day, birth_date, GETDATE()) / 365," +
 						"[Experience] = DATEDIFF(day, year_started, GETDATE()) / 365",
 						"Teachers"
 				);
+			statusStripCount.Text = $"Amount of teachers: {dtSource.Rows.Count}";
+			dataGridView.DataSource = dtSource;
 		}
 
-		void LoadFilterOptions()
+		void LoadFilterOptionsForStudents()
 		{
-			string item;
+			comboStudentsFields.Items.Clear();
+			comboStudentsGroups.Items.Clear();
+			allGroups.Clear();
+
+			HashSet<string> studyFields = new HashSet<string>();
 			comboStudentsFields.Items.Add("");
-			for (int i = 0; i < dtGroups.Rows.Count; i++)
+			for (int i = 0; i < dtSource.Rows.Count; i++)
 			{
-				item = dtGroups.Rows[i]["Study Field"].ToString();
-				allGroups.Add(dtGroups.Rows[i]["Name"].ToString());
-				comboStudentsGroups.Items.Add(dtGroups.Rows[i]["Name"].ToString());
-				if (!comboStudentsFields.Items.Contains(item)) comboStudentsFields.Items.Add(item);
+				allGroups.Add(dtSource.Rows[i]["Group"].ToString());
+				studyFields.Add(dtSource.Rows[i]["Study Field"].ToString());
 			}
+			comboStudentsGroups.Items.AddRange(allGroups.ToArray());
+			comboStudentsFields.Items.AddRange(studyFields.ToArray());
 		}
 
 		void LoadFilterGroups(string studyField = "")
@@ -76,27 +104,22 @@ namespace Academy
 			comboStudentsGroups.Items.Clear();
 			if (studyField != "")
 			{
-				for (int i = 0; i < dtGroups.Rows.Count; i++)
+				HashSet<string> groups = new HashSet<string>();
+				for (int i = 0; i < dtSource.Rows.Count; i++)
 				{
-					if (studyField == dtGroups.Rows[i]["Study Field"].ToString())
+					if (dtSource.Rows[i]["Study Field"].ToString() == studyField)
 					{
-						comboStudentsGroups.Items.Add(dtGroups.Rows[i]["Name"].ToString());
+						groups.Add(dtSource.Rows[i]["Group"].ToString());
 					}
 				}
+				comboStudentsGroups.Items.AddRange(groups.ToArray());
 			}
-			else
-			{
-				for (int i = 0; i < allGroups.Count; i++)
-				{
-					comboStudentsGroups.Items.Add(allGroups[i]);
-				}
-			}
+			else comboStudentsGroups.Items.AddRange(allGroups.ToArray());
 		}
 
 		private void MainForm_Load(object sender, EventArgs e)
 		{
-			dataGridView.DataSource = dtStudents;
-			statusStripCount.Text = $"Amount of students: {dataGridView.RowCount}";
+			dataGridView.DataSource = dtSource;
 		}
 
 		private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
@@ -104,20 +127,16 @@ namespace Academy
 			switch (tabControl.SelectedIndex)
 			{
 				case 0: // Students tab
-					dataGridView.DataSource = dtStudents;
-					statusStripCount.Text = $"Amount of students: {dataGridView.RowCount}";
+					LoadStudents();
 					break;
 				case 1: // Groups tab
-					dataGridView.DataSource = dtGroups;
-					statusStripCount.Text = $"Amount of groups: {dataGridView.RowCount}";
+					LoadGroups();
 					break;
 				case 2: // Subjects tab
-					dataGridView.DataSource = dtSubjects;
-					statusStripCount.Text = $"Amount of subjects: {dataGridView.RowCount}";
+					LoadSubjects();
 					break;
 				case 3: // Teachers tab
-					dataGridView.DataSource = dtTeachers;
-					statusStripCount.Text = $"Amount of teachers: {dataGridView.RowCount}";
+					LoadTeachers();
 					break;
 				default:
 					break;
@@ -126,23 +145,37 @@ namespace Academy
 
 		private void tbSearchStudents_TextChanged(object sender, EventArgs e)
 		{
-			dtStudents.DefaultView.RowFilter = $"[Name] LIKE '%{tbSearchStudents.Text}%'";
+			dtSource.DefaultView.RowFilter = $"[Name] LIKE '%{tbSearchStudents.Text}%'";
 		}
 
 		private void comboStudentsGroups_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			dtStudents.DefaultView.RowFilter = $"[Group] LIKE '{comboStudentsGroups.Text}'";
+			dtSource.DefaultView.RowFilter = $"[Group] LIKE '{comboStudentsGroups.Text}'";
 		}
 
 		private void comboStudentsGroups_TextUpdate(object sender, EventArgs e)
 		{
-			dtStudents.DefaultView.RowFilter = $"[Group] LIKE '%{comboStudentsGroups.Text}%'";
+			dtSource.DefaultView.RowFilter = $"[Group] LIKE '%{comboStudentsGroups.Text}%'";
 		}
 
 		private void comboStudentsFields_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			dtStudents.DefaultView.RowFilter = $"[Study Field] LIKE '%{comboStudentsFields.Text}%'";
+			dtSource.DefaultView.RowFilter = $"[Study Field] LIKE '%{comboStudentsFields.Text}%'";
 			LoadFilterGroups(comboStudentsFields.Text);
+		}
+
+		private void btnAddGroup_Click(object sender, EventArgs e)
+		{
+			// TODO call new form with textbox for group name and combobox with study field, then update data in datagridview
+
+			try
+			{
+				//test, will replace later
+				Connector.InsertGroup("PD_323", "Разработка ПО");
+				LoadGroups();
+			}
+			catch (SqlException) { MessageBox.Show("Study field does not exist"); }
+			catch (Exception exception) { MessageBox.Show(exception.Message); }
 		}
 	}
 }

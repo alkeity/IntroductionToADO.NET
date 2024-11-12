@@ -45,5 +45,22 @@ namespace Academy
 
 			return table;
 		}
+
+		public static void InsertGroup(string groupName, string fieldName)
+		{
+			SqlCommand cmd = new SqlCommand();
+			cmd.Connection = connection;
+			cmd.Parameters.Add("@study_field_name", SqlDbType.NVarChar, 150).Value = fieldName;
+			cmd.Parameters.Add("@group_name", SqlDbType.VarChar, 16).Value = groupName;
+			cmd.CommandText = $"IF NOT EXISTS(SELECT * FROM Groups WHERE group_name = @group_name) " +
+			$"BEGIN " +
+			$"INSERT INTO Groups (group_name, study_field_id) " +
+			$"VALUES (@group_name, (SELECT id FROM StudyFields WHERE study_field_name = @study_field_name)); " +
+			$"END";
+
+			connection.Open();
+			if (cmd.ExecuteNonQuery() <= 0) throw new Exception($"Group \"{groupName}\" already exists");
+			connection.Close();
+		}
     }
 }
