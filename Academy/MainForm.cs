@@ -166,16 +166,9 @@ namespace Academy
 
 		private void btnAddGroup_Click(object sender, EventArgs e)
 		{
-			// TODO call new form with textbox for group name and combobox with study field, then update data in datagridview
-
-			try
-			{
-				//test, will replace later
-				Connector.InsertGroup("PD_323", "Разработка ПО");
-				LoadGroups();
-			}
-			catch (SqlException) { MessageBox.Show("Study field does not exist"); }
-			catch (Exception exception) { MessageBox.Show(exception.Message); }
+			AddGroupForm addGroupForm = new AddGroupForm();
+			addGroupForm.ShowDialog();
+			LoadGroups();
 		}
 	}
 }

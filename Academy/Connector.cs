@@ -29,19 +29,23 @@ namespace Academy
 			SqlCommand cmd = new SqlCommand(cmdStr, connection);
 
 			connection.Open();
-			SqlDataReader reader = cmd.ExecuteReader();
-			if (reader.HasRows)
+			try
 			{
-				for (int i = 0; i < reader.FieldCount; i++) table.Columns.Add(reader.GetName(i));
-				while (reader.Read())
+				using (SqlDataReader reader = cmd.ExecuteReader())
 				{
-					DataRow row = table.NewRow();
-					for (int i = 0; i < reader.FieldCount; i++) row[i] = reader[i];
-					table.Rows.Add(row);
+					if (reader.HasRows)
+					{
+						for (int i = 0; i < reader.FieldCount; i++) table.Columns.Add(reader.GetName(i));
+						while (reader.Read())
+						{
+							DataRow row = table.NewRow();
+							for (int i = 0; i < reader.FieldCount; i++) row[i] = reader[i];
+							table.Rows.Add(row);
+						}
+					}
 				}
 			}
-			reader.Close();
-			connection.Close();
+			finally { connection.Close(); }
 
 			return table;
 		}
@@ -59,7 +63,11 @@ namespace Academy
 			$"END";
 
 			connection.Open();
-			if (cmd.ExecuteNonQuery() <= 0) throw new Exception($"Group \"{groupName}\" already exists");
+			if (cmd.ExecuteNonQuery() <= 0)
+			{
+				connection.Close();
+				throw new Exception($"Group \"{groupName}\" already exists");
+			}
 			connection.Close();
 		}
     }
