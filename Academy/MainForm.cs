@@ -6,6 +6,7 @@ using System.Data.SqlClient;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -24,6 +25,12 @@ namespace Academy
 			allGroups = new HashSet<string>();
 			dtSource = new DataTable();
 			LoadStudents();
+			AllocConsole();
+		}
+
+		~MainForm()
+		{
+			FreeConsole();
 		}
 		
 		void LoadStudents()
@@ -89,6 +96,7 @@ namespace Academy
 			allGroups.Clear();
 
 			HashSet<string> studyFields = new HashSet<string>();
+
 			comboStudentsFields.Items.Add("");
 			for (int i = 0; i < dtSource.Rows.Count; i++)
 			{
@@ -170,5 +178,10 @@ namespace Academy
 			addGroupForm.ShowDialog();
 			LoadGroups();
 		}
+
+		[DllImport("kernel32.dll")]
+		private static extern bool AllocConsole();
+		[DllImport("kernel32.dll")]
+		private static extern bool FreeConsole();
 	}
 }

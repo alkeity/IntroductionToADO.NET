@@ -50,6 +50,29 @@ namespace Academy
 			return table;
 		}
 
+		public static List<string> SelectColumn(string column, string table)
+		{
+			List<string> values = new List<string>();
+			string cmdStr = $"SELECT {column} FROM {table}";
+
+			SqlCommand cmd = new SqlCommand(cmdStr, connection);
+
+			connection.Open();
+			try
+			{
+				using (SqlDataReader reader = cmd.ExecuteReader())
+				{
+					if (reader.HasRows)
+					{
+						while (reader.Read()) values.Add(reader[0].ToString());
+					}
+				}
+			}
+			finally { connection.Close(); }
+
+			return values;
+		}
+
 		public static void InsertGroup(string groupName, string fieldName)
 		{
 			SqlCommand cmd = new SqlCommand();
