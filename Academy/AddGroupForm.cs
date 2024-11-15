@@ -42,21 +42,36 @@ namespace Academy
 				Console.Write(clbDays.GetItemChecked(i) + "\n");
 				if (clbDays.GetItemChecked(i)) days |= Convert.ToByte(day << i);
 			}
-			Console.WriteLine();
+			//Console.WriteLine();
 			Console.WriteLine(days);
 
 			return days;
+		}
+
+		void SetWeekdaysToForm(byte days)
+		{
+			string binary = Convert.ToString(days, 2);
+			while (binary.Length < 7) binary += '0';
+			for (byte i = 0; i < clbDays.Items.Count; i++)
+			{
+				Console.Write($"Weekday {i + 1}: ");
+				if (binary[i] == '1') Console.WriteLine("Lesson");
+				else Console.WriteLine("No lesson");
+			}
 		}
 
 		private void AddGroupForm_Load(object sender, EventArgs e)
 		{
 			LoadStudyFields();
 			LoadLearningForms();
+
+			Console.WriteLine(sender.GetType());
 		}
 
 		private void btnAdd_Click(object sender, EventArgs e)
 		{
-			GetWeekdays();
+			SetWeekdaysToForm(21); // 21 == mon wed fri
+			//GetWeekdaysFromForm();
 			//if (tbGroupName.Text.Length <= 0)
 			//{
 			//	MessageBox.Show("Group name cannot be empty.");
