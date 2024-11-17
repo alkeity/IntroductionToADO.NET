@@ -16,6 +16,8 @@ namespace Academy
 	public partial class MainForm : Form
 	{
 		DataTable dtSource;
+		Dictionary<string, int> studyFields;
+		Dictionary<string, int> learningForms;
 
 		HashSet<string> allGroups;
 		public MainForm()
@@ -24,6 +26,10 @@ namespace Academy
 			this.Icon = Icon.ExtractAssociatedIcon(Assembly.GetEntryAssembly().Location);
 			allGroups = new HashSet<string>();
 			dtSource = new DataTable();
+
+			studyFields = Connector.SelectColumnWithID("study_field_name", "StudyFields");
+			learningForms = Connector.SelectColumnWithID("form_name", "LearningForms");
+
 			LoadStudents();
 			AllocConsole();
 		}
@@ -128,6 +134,10 @@ namespace Academy
 		private void MainForm_Load(object sender, EventArgs e)
 		{
 			dataGridView.DataSource = dtSource;
+			//foreach (KeyValuePair<string, int> value in studyFields)
+			//{
+			//	Console.WriteLine($"{value.Key}: id {value.Value}");
+			//}
 		}
 
 		private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
@@ -174,8 +184,7 @@ namespace Academy
 
 		private void btnAddGroup_Click(object sender, EventArgs e)
 		{
-			AddGroupForm addGroupForm = new AddGroupForm();
-			addGroupForm.ShowDialog();
+			using (AddGroupForm addGroupForm = new AddGroupForm(studyFields, learningForms)) addGroupForm.ShowDialog();
 			LoadGroups();
 		}
 

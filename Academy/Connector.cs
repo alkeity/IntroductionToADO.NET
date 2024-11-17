@@ -73,6 +73,29 @@ namespace Academy
 			return values;
 		}
 
+		public static Dictionary<string, int> SelectColumnWithID(string column, string table)
+		{
+			Dictionary<string, int> values = new Dictionary<string, int>();
+
+			string cmdStr = $"SELECT {column}, id FROM {table}";
+			SqlCommand cmd = new SqlCommand(cmdStr, connection);
+
+			connection.Open();
+			try
+			{
+				using (SqlDataReader reader = cmd.ExecuteReader())
+				{
+					if (reader.HasRows)
+					{
+						while (reader.Read()) values[reader[0].ToString()] = Convert.ToInt32(reader[1]);
+					}
+				}
+			}
+			finally { connection.Close(); }
+
+			return values;
+		}
+
 		public static void InsertGroup(string groupName, string fieldName)
 		{
 			SqlCommand cmd = new SqlCommand();
@@ -93,5 +116,30 @@ namespace Academy
 			}
 			connection.Close();
 		}
-    }
+
+		public static void InsertGroup(Group group)
+		{
+			string cmdStr = "IF NOT EXISTS(SELECT * FROM Groups WHERE group_name = @groupName) " +
+				"BEGIN " +
+				"INSERT INTO Groups (group_name, start_date, start_time, lesson_days, study_field_id, learning_form_id) " +
+				"VALUES (@groupName, @startDate, @startTime, @lessonDays, @studyFieldID, @learningFormID);" +
+				"END";
+
+			SqlCommand cmd = new SqlCommand(cmdStr, connection);
+			cmd.Parameters.Add("@groupName", SqlDbType.VarChar, 16).Value = group.Name;
+			cmd.Parameters.Add("@startDate", SqlDbType.Date).Value = group.StartDate;
+			cmd.Parameters.Add("@startTime", SqlDbType.Time).Value = group.StartTime;
+			cmd.Parameters.Add("@lessonDays", SqlDbType.TinyInt).Value = group.StudyDays;
+			cmd.Parameters.Add("@studyFieldID", SqlDbType.Int).Value = group.StudyFieldID;
+			cmd.Parameters.Add("@learningFormID", SqlDbType.Int).Value = group.LearningFormID;
+
+			connection.Open();
+			try
+			{
+				if (cmd.ExecuteNonQuery() <= 0) throw new Exception($"Group \"{group.Name}\" already exists");
+			}
+			finally { connection.Close(); }
+		}
+
+	}
 }

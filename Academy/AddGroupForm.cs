@@ -14,21 +14,36 @@ namespace Academy
 {
 	public partial class AddGroupForm : Form
 	{
+		Dictionary<string, int> studyFields;
+		Dictionary<string, int> learningForms;
+
 		public AddGroupForm()
 		{
 			InitializeComponent();
 			this.Icon = Icon.ExtractAssociatedIcon(Assembly.GetEntryAssembly().Location);
+			studyFields = new Dictionary<string, int>();
+			learningForms = new Dictionary<string, int>();
+		}
+
+        public AddGroupForm(Dictionary<string, int> studyFields, Dictionary<string, int> learningForms)
+        {
+			InitializeComponent();
+			this.Icon = Icon.ExtractAssociatedIcon(Assembly.GetEntryAssembly().Location);
+			this.studyFields = studyFields;
+			this.learningForms = learningForms;
 		}
 
 		void LoadStudyFields()
 		{
-			comboStudyField.Items.AddRange(Connector.SelectColumn("study_field_name", "StudyFields").ToArray());
+			if (studyFields.Count <= 0) studyFields = Connector.SelectColumnWithID("study_field_name", "StudyFields");
+			comboStudyField.Items.AddRange(studyFields.Keys.ToArray());
 			comboStudyField.SelectedIndex = 0;
 		}
 
 		void LoadLearningForms()
 		{
-			comboLearningForm.Items.AddRange(Connector.SelectColumn("form_name", "LearningForms").ToArray());
+			if (learningForms.Count <= 0) learningForms = Connector.SelectColumnWithID("form_name", "LearningForms");
+			comboLearningForm.Items.AddRange(learningForms.Keys.ToArray());
 			comboLearningForm.SelectedIndex = 0;
 		}
 
@@ -39,10 +54,8 @@ namespace Academy
 
 			for (byte i = 0; i < clbDays.Items.Count; i++)
 			{
-				Console.Write(clbDays.GetItemChecked(i) + "\n");
 				if (clbDays.GetItemChecked(i)) days |= Convert.ToByte(day << i);
 			}
-			//Console.WriteLine();
 			Console.WriteLine(days);
 
 			return days;
@@ -50,13 +63,10 @@ namespace Academy
 
 		void SetWeekdaysToForm(byte days)
 		{
-			string binary = Convert.ToString(days, 2);
-			while (binary.Length < 7) binary += '0';
-			for (byte i = 0; i < clbDays.Items.Count; i++)
+			for (int i = 0; i < clbDays.Items.Count; i++)
 			{
-				Console.Write($"Weekday {i + 1}: ");
-				if (binary[i] == '1') Console.WriteLine("Lesson");
-				else Console.WriteLine("No lesson");
+				if ((days & (1 << i)) != 0) clbDays.Items[i] = true;
+				else clbDays.Items[i] = false;
 			}
 		}
 
@@ -65,28 +75,36 @@ namespace Academy
 			LoadStudyFields();
 			LoadLearningForms();
 
-			Console.WriteLine(sender.GetType());
+			//Console.WriteLine(sender.GetType());
 		}
 
 		private void btnAdd_Click(object sender, EventArgs e)
 		{
-			SetWeekdaysToForm(21); // 21 == mon wed fri
-			//GetWeekdaysFromForm();
-			//if (tbGroupName.Text.Length <= 0)
-			//{
-			//	MessageBox.Show("Group name cannot be empty.");
-			//	return;
-			//}
+			//SetWeekdaysToForm(21); // 21 == mon wed fri
+			GetWeekdaysFromForm();
+			if (tbGroupName.Text.Length <= 0)
+			{
+				MessageBox.Show("Group name cannot be empty.");
+				return;
+			}
 
-			//try
-			//{
-			//	Connector.InsertGroup(tbGroupName.Text, comboStudyField.Text);
-			//	MessageBox.Show($"Success! New group added:\n{tbGroupName.Text}, study field: {comboStudyField.Text}");
-			//	tbGroupName.Text = "";
-			//	comboStudyField.SelectedIndex = 0;
-			//}
-			////catch (SqlException) { MessageBox.Show("Study field does not exist"); }
-			//catch (Exception exception) { MessageBox.Show(exception.Message); }
+			Group group = new Group(
+				tbGroupName.Text,
+				GetWeekdaysFromForm(),
+				dtpDate.Value, dtpTime.Value.TimeOfDay,
+				studyFields[comboStudyField.Text],
+				learningForms[comboLearningForm.Text]
+				);
+
+			try
+			{
+				Connector.InsertGroup(group);
+				MessageBox.Show($"Success! New group added:\n{tbGroupName.Text}, study field: {comboStudyField.Text}");
+				tbGroupName.Text = "";
+				comboStudyField.SelectedIndex = 0;
+			}
+			//catch (SqlException) { MessageBox.Show("Study field does not exist"); }
+			catch (Exception exception) { MessageBox.Show(exception.Message); }
 		}
 	}
 }
