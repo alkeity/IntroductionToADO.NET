@@ -230,10 +230,13 @@
 			this.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.dataGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
 			this.dataGridView.Location = new System.Drawing.Point(4, 59);
+			this.dataGridView.MultiSelect = false;
 			this.dataGridView.Name = "dataGridView";
 			this.dataGridView.ReadOnly = true;
+			this.dataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
 			this.dataGridView.Size = new System.Drawing.Size(593, 398);
 			this.dataGridView.TabIndex = 0;
+			this.dataGridView.CellContentDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_CellContentDoubleClick);
 			// 
 			// statusStrip
 			// 

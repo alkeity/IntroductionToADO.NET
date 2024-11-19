@@ -14,36 +14,40 @@ namespace Academy
 {
 	public partial class AddGroupForm : Form
 	{
-		Dictionary<string, int> studyFields;
-		Dictionary<string, int> learningForms;
+		Group group;
 
 		public AddGroupForm()
 		{
 			InitializeComponent();
 			this.Icon = Icon.ExtractAssociatedIcon(Assembly.GetEntryAssembly().Location);
-			studyFields = new Dictionary<string, int>();
-			learningForms = new Dictionary<string, int>();
+			group = new Group();
 		}
 
-        public AddGroupForm(Dictionary<string, int> studyFields, Dictionary<string, int> learningForms)
+        public AddGroupForm(Group group) : this()
         {
-			InitializeComponent();
-			this.Icon = Icon.ExtractAssociatedIcon(Assembly.GetEntryAssembly().Location);
-			this.studyFields = studyFields;
-			this.learningForms = learningForms;
+			this.group = group;
+			btnAdd.Text = "Update";
+		}
+
+        void InitWithGroup()
+		{
+			tbGroupName.Text = group.Name;
+			SetWeekdaysToForm(group.StudyDays);
+			dtpDate.Value = group.StartDate;
+			dtpTime.Value = group.StartDate + group.StartTime;
+			comboLearningForm.SelectedIndex = comboLearningForm.Items.IndexOf(Connector.learningForms.FirstOrDefault(x => x.Value == group.LearningFormID).Key);
+			comboStudyField.SelectedIndex = comboStudyField.Items.IndexOf(Connector.studyFields.FirstOrDefault(x => x.Value == group.StudyFieldID).Key);
 		}
 
 		void LoadStudyFields()
 		{
-			if (studyFields.Count <= 0) studyFields = Connector.SelectColumnWithID("study_field_name", "StudyFields");
-			comboStudyField.Items.AddRange(studyFields.Keys.ToArray());
+			comboStudyField.Items.AddRange(Connector.studyFields.Keys.ToArray());
 			comboStudyField.SelectedIndex = 0;
 		}
 
 		void LoadLearningForms()
 		{
-			if (learningForms.Count <= 0) learningForms = Connector.SelectColumnWithID("form_name", "LearningForms");
-			comboLearningForm.Items.AddRange(learningForms.Keys.ToArray());
+			comboLearningForm.Items.AddRange(Connector.learningForms.Keys.ToArray());
 			comboLearningForm.SelectedIndex = 0;
 		}
 
@@ -56,17 +60,15 @@ namespace Academy
 			{
 				if (clbDays.GetItemChecked(i)) days |= Convert.ToByte(day << i);
 			}
-			Console.WriteLine(days);
 
 			return days;
 		}
 
 		void SetWeekdaysToForm(byte days)
 		{
-			for (int i = 0; i < clbDays.Items.Count; i++)
+			for (byte i = 0; i < clbDays.Items.Count; i++)
 			{
-				if ((days & (1 << i)) != 0) clbDays.Items[i] = true;
-				else clbDays.Items[i] = false;
+				clbDays.SetItemChecked(i, (days & (1 << i)) != 0);
 			}
 		}
 
@@ -74,6 +76,7 @@ namespace Academy
 		{
 			LoadStudyFields();
 			LoadLearningForms();
+			if (group.Id != 0) InitWithGroup();
 
 			//Console.WriteLine(sender.GetType());
 		}
@@ -88,20 +91,30 @@ namespace Academy
 				return;
 			}
 
-			Group group = new Group(
-				tbGroupName.Text,
-				GetWeekdaysFromForm(),
-				dtpDate.Value, dtpTime.Value.TimeOfDay,
-				studyFields[comboStudyField.Text],
-				learningForms[comboLearningForm.Text]
-				);
+			group.Name = tbGroupName.Text;
+			group.StudyDays = GetWeekdaysFromForm();
+			group.StartDate = dtpDate.Value;
+			group.StartTime = dtpTime.Value.TimeOfDay;
+			group.StudyFieldID = Connector.studyFields[comboStudyField.Text];
+			group.LearningFormID = Connector.learningForms[comboLearningForm.Text];
+
 
 			try
 			{
-				Connector.InsertGroup(group);
-				MessageBox.Show($"Success! New group added:\n{tbGroupName.Text}, study field: {comboStudyField.Text}");
-				tbGroupName.Text = "";
-				comboStudyField.SelectedIndex = 0;
+				if (group.Id == 0)
+				{
+					Connector.InsertGroup(group);
+					MessageBox.Show($"Success! New group added:\n{tbGroupName.Text}, study field: {comboStudyField.Text}");
+					tbGroupName.Text = "";
+					comboStudyField.SelectedIndex = 0;
+					SetWeekdaysToForm(0);
+				}
+				else
+				{
+					Connector.UpdateGroup(group);
+					this.DialogResult = DialogResult.OK;
+					this.Close();
+				}
 			}
 			//catch (SqlException) { MessageBox.Show("Study field does not exist"); }
 			catch (Exception exception) { MessageBox.Show(exception.Message); }

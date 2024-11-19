@@ -13,10 +13,16 @@ namespace Academy
 	{
 		static readonly string connectionStr = ConfigurationManager.ConnectionStrings["AcademyConnectionString"].ConnectionString;
 		static SqlConnection connection;
-        static Connector()
+
+		internal static readonly Dictionary<string, int> studyFields;
+		internal static readonly Dictionary<string, int> learningForms;
+		static Connector()
         {
             connection = new SqlConnection(connectionStr);
-        }
+
+			studyFields = SelectColumnWithID("study_field_name", "StudyFields");
+			learningForms = SelectColumnWithID("form_name", "LearningForms");
+		}
 
         public static DataTable Select(string columns, string tables, string conditions = "")
         {
@@ -137,6 +143,30 @@ namespace Academy
 			try
 			{
 				if (cmd.ExecuteNonQuery() <= 0) throw new Exception($"Group \"{group.Name}\" already exists");
+			}
+			finally { connection.Close(); }
+		}
+
+		public static void UpdateGroup(Group group)
+		{
+			string cmdStr = "UPDATE Groups SET " +
+				"group_name = @groupName, start_date = @startDate, start_time = @startTime, lesson_days = @lessonDays," +
+				" study_field_id = @studyFieldID, learning_form_id = @learningFormID " +
+				"WHERE id = @ID";
+
+			SqlCommand cmd = new SqlCommand(cmdStr, connection);
+			cmd.Parameters.Add("@ID", SqlDbType.Int).Value = group.Id;
+			cmd.Parameters.Add("@groupName", SqlDbType.VarChar, 16).Value = group.Name;
+			cmd.Parameters.Add("@startDate", SqlDbType.Date).Value = group.StartDate;
+			cmd.Parameters.Add("@startTime", SqlDbType.Time).Value = group.StartTime;
+			cmd.Parameters.Add("@lessonDays", SqlDbType.TinyInt).Value = group.StudyDays;
+			cmd.Parameters.Add("@studyFieldID", SqlDbType.Int).Value = group.StudyFieldID;
+			cmd.Parameters.Add("@learningFormID", SqlDbType.Int).Value = group.LearningFormID;
+
+			connection.Open();
+			try
+			{
+				cmd.ExecuteNonQuery();
 			}
 			finally { connection.Close(); }
 		}

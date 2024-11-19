@@ -16,8 +16,8 @@ namespace Academy
 	public partial class MainForm : Form
 	{
 		DataTable dtSource;
-		Dictionary<string, int> studyFields;
-		Dictionary<string, int> learningForms;
+		//Dictionary<string, int> studyFields;
+		//Dictionary<string, int> learningForms;
 
 		HashSet<string> allGroups;
 		public MainForm()
@@ -27,8 +27,8 @@ namespace Academy
 			allGroups = new HashSet<string>();
 			dtSource = new DataTable();
 
-			studyFields = Connector.SelectColumnWithID("study_field_name", "StudyFields");
-			learningForms = Connector.SelectColumnWithID("form_name", "LearningForms");
+			//studyFields = Connector.SelectColumnWithID("study_field_name", "StudyFields");
+			//learningForms = Connector.SelectColumnWithID("form_name", "LearningForms");
 
 			LoadStudents();
 			AllocConsole();
@@ -59,10 +59,15 @@ namespace Academy
 		{
 			dtSource.Clear();
 			dtSource = Connector.Select(
-						"[Name] = group_name," +
-						"[Study Field] = study_field_name",
-						"Groups, StudyFields",
-						"Groups.study_field_id = StudyFields.id"
+						"[ID] = Groups.id, " +
+						"[Name] = group_name, " +
+						"[Study Field] = study_field_name, " +
+						"[Learning form] = form_name, " +
+						"[Start date] = start_date, " +
+						"[Study days] = lesson_days, " +
+						"[Time] = start_time",
+						"Groups, StudyFields, LearningForms",
+						"Groups.study_field_id = StudyFields.id AND Groups.learning_form_id = LearningForms.id"
 				);
 			statusStripCount.Text = $"Amount of groups: {dtSource.Rows.Count}";
 			dataGridView.DataSource = dtSource;
@@ -134,10 +139,6 @@ namespace Academy
 		private void MainForm_Load(object sender, EventArgs e)
 		{
 			dataGridView.DataSource = dtSource;
-			//foreach (KeyValuePair<string, int> value in studyFields)
-			//{
-			//	Console.WriteLine($"{value.Key}: id {value.Value}");
-			//}
 		}
 
 		private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
@@ -184,7 +185,7 @@ namespace Academy
 
 		private void btnAddGroup_Click(object sender, EventArgs e)
 		{
-			using (AddGroupForm addGroupForm = new AddGroupForm(studyFields, learningForms)) addGroupForm.ShowDialog();
+			using (AddGroupForm addGroupForm = new AddGroupForm()) addGroupForm.ShowDialog();
 			LoadGroups();
 		}
 
@@ -192,5 +193,26 @@ namespace Academy
 		private static extern bool AllocConsole();
 		[DllImport("kernel32.dll")]
 		private static extern bool FreeConsole();
+
+		private void dataGridView_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
+		{
+			if (tabControl.SelectedIndex == 1)
+			{
+				Group group = new Group(
+				Convert.ToInt32(dataGridView.SelectedRows[0].Cells[0].Value),
+				Convert.ToString(dataGridView.SelectedRows[0].Cells[1].Value),
+				Convert.ToByte(dataGridView.SelectedRows[0].Cells[5].Value),
+				Convert.ToDateTime(dataGridView.SelectedRows[0].Cells[4].Value),
+				Convert.ToDateTime(dataGridView.SelectedRows[0].Cells[6].Value).TimeOfDay,
+				Connector.studyFields[Convert.ToString(dataGridView.SelectedRows[0].Cells[2].Value)],
+				Connector.learningForms[Convert.ToString(dataGridView.SelectedRows[0].Cells[3].Value)]
+				);
+
+				using (AddGroupForm addGroupForm = new AddGroupForm(group))
+				{
+					if (addGroupForm.ShowDialog() == DialogResult.OK) LoadGroups();
+				}
+			}
+		}
 	}
 }
