@@ -164,10 +164,7 @@ namespace Academy
 			cmd.Parameters.Add("@learningFormID", SqlDbType.Int).Value = group.LearningFormID;
 
 			connection.Open();
-			try
-			{
-				cmd.ExecuteNonQuery();
-			}
+			try { cmd.ExecuteNonQuery(); }
 			finally { connection.Close(); }
 		}
 

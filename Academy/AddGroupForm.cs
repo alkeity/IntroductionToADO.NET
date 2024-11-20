@@ -83,7 +83,6 @@ namespace Academy
 
 		private void btnAdd_Click(object sender, EventArgs e)
 		{
-			//SetWeekdaysToForm(21); // 21 == mon wed fri
 			GetWeekdaysFromForm();
 			if (tbGroupName.Text.Length <= 0)
 			{

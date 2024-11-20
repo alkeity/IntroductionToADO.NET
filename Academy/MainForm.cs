@@ -16,10 +16,8 @@ namespace Academy
 	public partial class MainForm : Form
 	{
 		DataTable dtSource;
-		//Dictionary<string, int> studyFields;
-		//Dictionary<string, int> learningForms;
-
 		HashSet<string> allGroups;
+
 		public MainForm()
 		{
 			InitializeComponent();
@@ -69,6 +67,12 @@ namespace Academy
 						"Groups, StudyFields, LearningForms",
 						"Groups.study_field_id = StudyFields.id AND Groups.learning_form_id = LearningForms.id"
 				);
+
+			for (int i = 0; i < dtSource.Rows.Count; i++)
+			{
+				dtSource.Rows[i]["Study Days"] = Week.ReadableDays(Convert.ToByte(dtSource.Rows[i]["Study Days"]));
+			}
+
 			statusStripCount.Text = $"Amount of groups: {dtSource.Rows.Count}";
 			dataGridView.DataSource = dtSource;
 		}
@@ -201,7 +205,7 @@ namespace Academy
 				Group group = new Group(
 				Convert.ToInt32(dataGridView.SelectedRows[0].Cells[0].Value),
 				Convert.ToString(dataGridView.SelectedRows[0].Cells[1].Value),
-				Convert.ToByte(dataGridView.SelectedRows[0].Cells[5].Value),
+				Week.CompressedDays(Convert.ToString(dataGridView.SelectedRows[0].Cells[5].Value)),
 				Convert.ToDateTime(dataGridView.SelectedRows[0].Cells[4].Value),
 				Convert.ToDateTime(dataGridView.SelectedRows[0].Cells[6].Value).TimeOfDay,
 				Connector.studyFields[Convert.ToString(dataGridView.SelectedRows[0].Cells[2].Value)],
