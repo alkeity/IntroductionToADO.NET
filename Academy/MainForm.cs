@@ -214,7 +214,17 @@ namespace Academy
 
 				using (AddGroupForm addGroupForm = new AddGroupForm(group))
 				{
-					if (addGroupForm.ShowDialog() == DialogResult.OK) LoadGroups();
+					if (addGroupForm.ShowDialog() == DialogResult.OK)
+					{
+						DataRow updRow = dtSource.Select($"id={group.Id}").FirstOrDefault();
+						updRow["Name"] = addGroupForm.Group.Name;
+						updRow["Study Field"] = Connector.studyFields.FirstOrDefault(x => x.Value == group.StudyFieldID).Key; //addGroupForm.Group.StudyFieldID
+						updRow["Learning form"] = Connector.learningForms.FirstOrDefault(x => x.Value == group.LearningFormID).Key;
+						updRow["Start date"] = addGroupForm.Group.StartDate;
+						updRow["Study days"] = Week.ReadableDays(addGroupForm.Group.StudyDays);
+						updRow["Time"] = addGroupForm.Group.StartTime;
+
+					}
 				}
 			}
 		}

@@ -115,12 +115,11 @@ namespace Academy
 			$"END";
 
 			connection.Open();
-			if (cmd.ExecuteNonQuery() <= 0)
+			try
 			{
-				connection.Close();
-				throw new Exception($"Group \"{groupName}\" already exists");
+				if (cmd.ExecuteNonQuery() <= 0) throw new Exception($"Group \"{groupName}\" already exists");
 			}
-			connection.Close();
+			finally { connection.Close(); }
 		}
 
 		public static void InsertGroup(Group group)
@@ -150,9 +149,9 @@ namespace Academy
 		public static void UpdateGroup(Group group)
 		{
 			string cmdStr = "UPDATE Groups SET " +
-				"group_name = @groupName, start_date = @startDate, start_time = @startTime, lesson_days = @lessonDays," +
-				" study_field_id = @studyFieldID, learning_form_id = @learningFormID " +
-				"WHERE id = @ID";
+							"group_name = @groupName, start_date = @startDate, start_time = @startTime, lesson_days = @lessonDays, " +
+							"study_field_id = @studyFieldID, learning_form_id = @learningFormID " +
+							"WHERE id = @ID";
 
 			SqlCommand cmd = new SqlCommand(cmdStr, connection);
 			cmd.Parameters.Add("@ID", SqlDbType.Int).Value = group.Id;

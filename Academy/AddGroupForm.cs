@@ -16,6 +16,8 @@ namespace Academy
 	{
 		Group group;
 
+		public Group Group { get => group; }
+
 		public AddGroupForm()
 		{
 			InitializeComponent();
@@ -103,17 +105,13 @@ namespace Academy
 				if (group.Id == 0)
 				{
 					Connector.InsertGroup(group);
-					MessageBox.Show($"Success! New group added:\n{tbGroupName.Text}, study field: {comboStudyField.Text}");
-					tbGroupName.Text = "";
-					comboStudyField.SelectedIndex = 0;
-					SetWeekdaysToForm(0);
 				}
 				else
 				{
 					Connector.UpdateGroup(group);
-					this.DialogResult = DialogResult.OK;
-					this.Close();
 				}
+				this.DialogResult = DialogResult.OK;
+				this.Close();
 			}
 			//catch (SqlException) { MessageBox.Show("Study field does not exist"); }
 			catch (Exception exception) { MessageBox.Show(exception.Message); }
