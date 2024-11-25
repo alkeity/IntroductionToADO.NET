@@ -34,6 +34,8 @@ namespace Academy
 			}
 			SqlCommand cmd = new SqlCommand(cmdStr, connection);
 
+			Console.WriteLine(cmdStr);
+
 			connection.Open();
 			try
 			{
@@ -142,6 +144,15 @@ namespace Academy
 			try
 			{
 				if (cmd.ExecuteNonQuery() <= 0) throw new Exception($"Group \"{group.Name}\" already exists");
+				cmd.CommandText = "SELECT id FROM Groups WHERE group_name = @groupName";
+				//using (SqlDataReader reader = cmd.ExecuteReader())
+				//{
+				//	if (reader.HasRows)
+				//	{
+				//		return Convert.ToInt32(reader[0].ToString());
+				//	}
+				//	else throw new Exception("No group added");
+				//}
 			}
 			finally { connection.Close(); }
 		}
@@ -164,6 +175,39 @@ namespace Academy
 
 			connection.Open();
 			try { cmd.ExecuteNonQuery(); }
+			finally { connection.Close(); }
+		}
+
+		public static void InsertStudent(Student student)
+		{
+			string cmdStr = "IF NOT EXISTS" +
+				"(SELECT * FROM Students WHERE first_name = @firstName AND last_name = @lastName AND middle_name = @middleName AND birth_date = @birthDate AND group_id = @groupID) " +
+				"BEGIN " +
+				"INSERT INTO Students (first_name, last_name, middle_name, birth_date, group_id) " +
+				"VALUES (@firstName, @lastName, @middleName, @birthDate, @groupID);" +
+				"END";
+
+			SqlCommand cmd = new SqlCommand(cmdStr, connection);
+			cmd.Parameters.Add("@firstName", SqlDbType.VarChar, 150).Value = student.FirstName;
+			cmd.Parameters.Add("@lastName", SqlDbType.VarChar, 150).Value = student.LastName;
+			cmd.Parameters.Add("@middleName", SqlDbType.VarChar, 150).Value = student.MiddleName;
+			cmd.Parameters.Add("@birthDate", SqlDbType.Date).Value = student.BirthDate;
+			cmd.Parameters.Add("@groupID", SqlDbType.Int).Value = student.GroupID;
+
+			connection.Open();
+			try
+			{
+				if (cmd.ExecuteNonQuery() <= 0) throw new Exception($"Student already exists");
+				//cmd.CommandText = "SELECT id FROM Students WHERE first_name = @firstName AND last_name = @lastName AND middle_name = @middleName AND birth_date = @birthDate AND group_id = @groupID";
+				//using (SqlDataReader reader = cmd.ExecuteReader())
+				//{
+				//	if (reader.HasRows)
+				//	{
+				//		return Convert.ToInt32(reader[0].ToString());
+				//	}
+				//	else throw new Exception("No student added");
+				//}
+			}
 			finally { connection.Close(); }
 		}
 

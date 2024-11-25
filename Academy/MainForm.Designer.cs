@@ -47,6 +47,7 @@
 			this.dataGridView = new System.Windows.Forms.DataGridView();
 			this.statusStrip = new System.Windows.Forms.StatusStrip();
 			this.statusStripCount = new System.Windows.Forms.ToolStripStatusLabel();
+			this.btnAddStudent = new System.Windows.Forms.Button();
 			this.tabControl.SuspendLayout();
 			this.tabPageStudents.SuspendLayout();
 			this.tabPageGroups.SuspendLayout();
@@ -71,6 +72,7 @@
 			// 
 			// tabPageStudents
 			// 
+			this.tabPageStudents.Controls.Add(this.btnAddStudent);
 			this.tabPageStudents.Controls.Add(this.labelStudyField);
 			this.tabPageStudents.Controls.Add(this.comboStudentsFields);
 			this.tabPageStudents.Controls.Add(this.comboStudentsGroups);
@@ -88,7 +90,7 @@
 			// labelStudyField
 			// 
 			this.labelStudyField.AutoSize = true;
-			this.labelStudyField.Location = new System.Drawing.Point(376, 10);
+			this.labelStudyField.Location = new System.Drawing.Point(309, 10);
 			this.labelStudyField.Name = "labelStudyField";
 			this.labelStudyField.Size = new System.Drawing.Size(62, 13);
 			this.labelStudyField.TabIndex = 6;
@@ -98,7 +100,7 @@
 			// 
 			this.comboStudentsFields.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.comboStudentsFields.FormattingEnabled = true;
-			this.comboStudentsFields.Location = new System.Drawing.Point(454, 6);
+			this.comboStudentsFields.Location = new System.Drawing.Point(375, 6);
 			this.comboStudentsFields.Name = "comboStudentsFields";
 			this.comboStudentsFields.Size = new System.Drawing.Size(121, 21);
 			this.comboStudentsFields.TabIndex = 5;
@@ -107,9 +109,9 @@
 			// comboStudentsGroups
 			// 
 			this.comboStudentsGroups.FormattingEnabled = true;
-			this.comboStudentsGroups.Location = new System.Drawing.Point(239, 6);
+			this.comboStudentsGroups.Location = new System.Drawing.Point(208, 6);
 			this.comboStudentsGroups.Name = "comboStudentsGroups";
-			this.comboStudentsGroups.Size = new System.Drawing.Size(121, 21);
+			this.comboStudentsGroups.Size = new System.Drawing.Size(93, 21);
 			this.comboStudentsGroups.TabIndex = 4;
 			this.comboStudentsGroups.SelectedIndexChanged += new System.EventHandler(this.comboStudentsGroups_SelectedIndexChanged);
 			this.comboStudentsGroups.TextUpdate += new System.EventHandler(this.comboStudentsGroups_TextUpdate);
@@ -117,7 +119,7 @@
 			// labelGroup
 			// 
 			this.labelGroup.AutoSize = true;
-			this.labelGroup.Location = new System.Drawing.Point(184, 10);
+			this.labelGroup.Location = new System.Drawing.Point(169, 10);
 			this.labelGroup.Name = "labelGroup";
 			this.labelGroup.Size = new System.Drawing.Size(39, 13);
 			this.labelGroup.TabIndex = 3;
@@ -126,7 +128,7 @@
 			// tbSearchStudents
 			// 
 			this.tbSearchStudents.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-			this.tbSearchStudents.Location = new System.Drawing.Point(68, 6);
+			this.tbSearchStudents.Location = new System.Drawing.Point(55, 6);
 			this.tbSearchStudents.Name = "tbSearchStudents";
 			this.tbSearchStudents.Size = new System.Drawing.Size(100, 20);
 			this.tbSearchStudents.TabIndex = 2;
@@ -254,6 +256,16 @@
 			this.statusStripCount.Size = new System.Drawing.Size(118, 17);
 			this.statusStripCount.Text = "toolStripStatusLabel1";
 			// 
+			// btnAddStudent
+			// 
+			this.btnAddStudent.Location = new System.Drawing.Point(508, 5);
+			this.btnAddStudent.Name = "btnAddStudent";
+			this.btnAddStudent.Size = new System.Drawing.Size(75, 23);
+			this.btnAddStudent.TabIndex = 7;
+			this.btnAddStudent.Text = "Add";
+			this.btnAddStudent.UseVisualStyleBackColor = true;
+			this.btnAddStudent.Click += new System.EventHandler(this.btnAddStudent_Click);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -301,6 +313,7 @@
 		private System.Windows.Forms.Label labelGroupsSearch;
 		private System.Windows.Forms.TextBox tbGroupsSearch;
 		private System.Windows.Forms.Button btnAddGroup;
+		private System.Windows.Forms.Button btnAddStudent;
 	}
 }
 

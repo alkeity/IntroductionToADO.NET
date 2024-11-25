@@ -41,13 +41,16 @@ namespace Academy
 		{
 			dtSource.Clear();
 			dtSource = Connector.Select(
+						"[ID] = Students.id," +
 						"[Name] = FORMATMESSAGE('%s %s %s', last_name, first_name, middle_name)," +
 						"[Age] = DATEDIFF(day, birth_date, GETDATE()) / 365," +
+						"[Birtdate] = birth_date, " +
 						"[Group] = group_name," +
 						"[Study Field] = study_field_name",
 						"Students, Groups, StudyFields",
 						"Students.group_id = Groups.id AND Groups.study_field_id = StudyFields.id"
 				);
+			dtSource.PrimaryKey = new DataColumn[] { dtSource.Columns["ID"] };
 			statusStripCount.Text = $"Amount of students: {dtSource.Rows.Count}";
 			dataGridView.DataSource = dtSource;
 			LoadFilterOptionsForStudents();
@@ -72,6 +75,7 @@ namespace Academy
 			{
 				dtSource.Rows[i]["Study Days"] = Week.ReadableDays(Convert.ToByte(dtSource.Rows[i]["Study Days"]));
 			}
+			dtSource.PrimaryKey = new DataColumn[] { dtSource.Columns["ID"] };
 
 			statusStripCount.Text = $"Amount of groups: {dtSource.Rows.Count}";
 			dataGridView.DataSource = dtSource;
@@ -200,32 +204,54 @@ namespace Academy
 
 		private void dataGridView_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
 		{
-			if (tabControl.SelectedIndex == 1)
+			switch (tabControl.SelectedIndex)
 			{
-				Group group = new Group(
-				Convert.ToInt32(dataGridView.SelectedRows[0].Cells[0].Value),
-				Convert.ToString(dataGridView.SelectedRows[0].Cells[1].Value),
-				Week.CompressedDays(Convert.ToString(dataGridView.SelectedRows[0].Cells[5].Value)),
-				Convert.ToDateTime(dataGridView.SelectedRows[0].Cells[4].Value),
-				Convert.ToDateTime(dataGridView.SelectedRows[0].Cells[6].Value).TimeOfDay,
-				Connector.studyFields[Convert.ToString(dataGridView.SelectedRows[0].Cells[2].Value)],
-				Connector.learningForms[Convert.ToString(dataGridView.SelectedRows[0].Cells[3].Value)]
-				);
-
-				using (AddGroupForm addGroupForm = new AddGroupForm(group))
-				{
-					if (addGroupForm.ShowDialog() == DialogResult.OK)
+				case 0:
+					Student student = new Student(
+												Convert.ToInt32(dataGridView.SelectedRows[0].Cells[0].Value),
+												Convert.ToString(dataGridView.SelectedRows[0].Cells[1].Value),
+												Convert.ToDateTime(dataGridView.SelectedRows[0].Cells[3].Value),
+												Convert.ToInt32(Connector.Select("id", "Groups", $"group_name = '{Convert.ToString(dataGridView.SelectedRows[0].Cells[4].Value)}'").Rows[0][0])
+						);
+					using (AddStudentForm addStudentForm = new AddStudentForm(student))
 					{
-						DataRow updRow = dtSource.Select($"id={group.Id}").FirstOrDefault();
-						updRow["Name"] = addGroupForm.Group.Name;
-						updRow["Study Field"] = Connector.studyFields.FirstOrDefault(x => x.Value == group.StudyFieldID).Key; //addGroupForm.Group.StudyFieldID
-						updRow["Learning form"] = Connector.learningForms.FirstOrDefault(x => x.Value == group.LearningFormID).Key;
-						updRow["Start date"] = addGroupForm.Group.StartDate;
-						updRow["Study days"] = Week.ReadableDays(addGroupForm.Group.StudyDays);
-						updRow["Time"] = addGroupForm.Group.StartTime;
-
+						if (addStudentForm.ShowDialog() == DialogResult.OK) LoadStudents();
 					}
-				}
+					break;
+				case 1:
+					Group group = new Group(
+											Convert.ToInt32(dataGridView.SelectedRows[0].Cells[0].Value),
+											Convert.ToString(dataGridView.SelectedRows[0].Cells[1].Value),
+											Week.CompressedDays(Convert.ToString(dataGridView.SelectedRows[0].Cells[5].Value)),
+											Convert.ToDateTime(dataGridView.SelectedRows[0].Cells[4].Value),
+											Convert.ToDateTime(dataGridView.SelectedRows[0].Cells[6].Value).TimeOfDay,
+											Connector.studyFields[Convert.ToString(dataGridView.SelectedRows[0].Cells[2].Value)],
+											Connector.learningForms[Convert.ToString(dataGridView.SelectedRows[0].Cells[3].Value)]
+											);
+
+					using (AddGroupForm addGroupForm = new AddGroupForm(group))
+					{
+						if (addGroupForm.ShowDialog() == DialogResult.OK)
+						{
+							DataRow updRow = dtSource.Rows.Find(group.Id);
+							updRow["Name"] = addGroupForm.Group.Name;
+							updRow["Study Field"] = Connector.studyFields.FirstOrDefault(x => x.Value == group.StudyFieldID).Key; //addGroupForm.Group.StudyFieldID
+							updRow["Learning form"] = Connector.learningForms.FirstOrDefault(x => x.Value == group.LearningFormID).Key;
+							updRow["Start date"] = addGroupForm.Group.StartDate;
+							updRow["Study days"] = Week.ReadableDays(addGroupForm.Group.StudyDays);
+							updRow["Time"] = addGroupForm.Group.StartTime;
+						}
+					}
+					break;
+				default: break;
+			}
+		}
+
+		private void btnAddStudent_Click(object sender, EventArgs e)
+		{
+			using (AddStudentForm addStudentForm = new AddStudentForm())
+			{
+				if (addStudentForm.ShowDialog() == DialogResult.OK) LoadStudents();
 			}
 		}
 	}
