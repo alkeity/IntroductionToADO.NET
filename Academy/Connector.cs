@@ -211,5 +211,23 @@ namespace Academy
 			finally { connection.Close(); }
 		}
 
+		public static void UpdateStudent(Student student)
+		{
+			string cmdStr = "UPDATE Students SET " +
+							"first_name = @firstName, last_name = @lastName, middle_name = @middleName, birth_date = @birthDate, group_id = @groupID " +
+							"WHERE id = @ID";
+			SqlCommand cmd = new SqlCommand(cmdStr, connection);
+			cmd.Parameters.Add("@ID", SqlDbType.Int).Value = student.ID;
+			cmd.Parameters.Add("@firstName", SqlDbType.VarChar, 150).Value = student.FirstName;
+			cmd.Parameters.Add("@lastName", SqlDbType.VarChar, 150).Value = student.LastName;
+			cmd.Parameters.Add("@middleName", SqlDbType.VarChar, 150).Value = student.MiddleName;
+			cmd.Parameters.Add("@birthDate", SqlDbType.Date).Value = student.BirthDate;
+			cmd.Parameters.Add("@groupID", SqlDbType.Int).Value = student.GroupID;
+
+			connection.Open();
+			try { cmd.ExecuteNonQuery(); }
+			finally { connection.Close(); }
+		}
+
 	}
 }

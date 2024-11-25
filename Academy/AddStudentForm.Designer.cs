@@ -137,6 +137,7 @@
 			// 
 			// btnCancel
 			// 
+			this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
 			this.btnCancel.Location = new System.Drawing.Point(139, 160);
 			this.btnCancel.Name = "btnCancel";
 			this.btnCancel.Size = new System.Drawing.Size(75, 23);
@@ -162,9 +163,13 @@
 			this.Controls.Add(this.labelMiddleName);
 			this.Controls.Add(this.labelLastName);
 			this.Controls.Add(this.labelFirstName);
+			this.MaximizeBox = false;
+			this.MaximumSize = new System.Drawing.Size(273, 239);
+			this.MinimizeBox = false;
+			this.MinimumSize = new System.Drawing.Size(273, 239);
 			this.Name = "AddStudentForm";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-			this.Text = "AddStudentForm";
+			this.Text = "Add new student";
 			this.Load += new System.EventHandler(this.AddStudentForm_Load);
 			this.ResumeLayout(false);
 			this.PerformLayout();

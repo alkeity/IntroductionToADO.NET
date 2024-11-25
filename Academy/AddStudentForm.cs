@@ -27,6 +27,8 @@ namespace Academy
         public AddStudentForm(Student student) : this()
         {
 			this.student = student;
+			btnAdd.Text = "Update";
+			this.Text = "Update student";
         }
 
 		private void Init()
@@ -63,9 +65,9 @@ namespace Academy
 				}
 				else
 				{
-					//Connector.UpdateStudent(student);
-					//DialogResult = DialogResult.OK;
-					//this.Close();
+					Connector.UpdateStudent(student);
+					DialogResult = DialogResult.OK;
+					this.Close();
 				}
 			}
 			catch (Exception exception) { MessageBox.Show(exception.Message); }

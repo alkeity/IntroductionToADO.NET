@@ -29,6 +29,7 @@ namespace Academy
         {
 			this.group = group;
 			btnAdd.Text = "Update";
+			this.Text = "Update group";
 		}
 
         void InitWithGroup()
