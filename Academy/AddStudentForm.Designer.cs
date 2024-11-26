@@ -111,6 +111,8 @@
 			// dtpBirthdate
 			// 
 			this.dtpBirthdate.Location = new System.Drawing.Point(98, 99);
+			this.dtpBirthdate.MaxDate = new System.DateTime(2024, 11, 27, 0, 0, 0, 0);
+			this.dtpBirthdate.MinDate = new System.DateTime(1950, 1, 1, 0, 0, 0, 0);
 			this.dtpBirthdate.Name = "dtpBirthdate";
 			this.dtpBirthdate.Size = new System.Drawing.Size(142, 20);
 			this.dtpBirthdate.TabIndex = 8;

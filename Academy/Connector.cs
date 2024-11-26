@@ -144,7 +144,7 @@ namespace Academy
 			try
 			{
 				if (cmd.ExecuteNonQuery() <= 0) throw new Exception($"Group \"{group.Name}\" already exists");
-				cmd.CommandText = "SELECT id FROM Groups WHERE group_name = @groupName";
+				//cmd.CommandText = "SELECT id FROM Groups WHERE group_name = @groupName";
 				//using (SqlDataReader reader = cmd.ExecuteReader())
 				//{
 				//	if (reader.HasRows)

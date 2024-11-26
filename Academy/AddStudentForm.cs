@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -15,6 +16,7 @@ namespace Academy
 	{
 		Student student;
 		Dictionary<string, int> groups;
+		static string pattern = @"^[a-zA-Zа-яА-Я-]+$";
 
 		public AddStudentForm()
 		{
@@ -49,9 +51,27 @@ namespace Academy
 
 		private void btnAdd_Click(object sender, EventArgs e)
 		{
-			student.LastName = tbLastName.Text;
-			student.FirstName = tbFirstName.Text;
-			student.MiddleName = tbMiddleName.Text;
+			Regex regex = new Regex(pattern);
+
+			if (regex.IsMatch(tbLastName.Text)) student.LastName = tbLastName.Text;
+			else
+			{
+				MessageBox.Show("Last name is not valid");
+				return;
+			}
+			if (regex.IsMatch(tbFirstName.Text)) student.FirstName = tbFirstName.Text;
+			else
+			{
+				MessageBox.Show("First name is not valid");
+				return;
+			}
+			if (regex.IsMatch(tbMiddleName.Text)) student.MiddleName = tbMiddleName.Text;
+			else
+			{
+				MessageBox.Show("Middle name is not valid");
+				return;
+			}
+
 			student.BirthDate = dtpBirthdate.Value;
 			student.GroupID = groups[comboGroups.Text];
 

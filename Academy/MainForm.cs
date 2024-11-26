@@ -235,7 +235,7 @@ namespace Academy
 						{
 							DataRow updRow = dtSource.Rows.Find(group.Id);
 							updRow["Name"] = addGroupForm.Group.Name;
-							updRow["Study Field"] = Connector.studyFields.FirstOrDefault(x => x.Value == group.StudyFieldID).Key; //addGroupForm.Group.StudyFieldID
+							updRow["Study Field"] = Connector.studyFields.FirstOrDefault(x => x.Value == group.StudyFieldID).Key;
 							updRow["Learning form"] = Connector.learningForms.FirstOrDefault(x => x.Value == group.LearningFormID).Key;
 							updRow["Start date"] = addGroupForm.Group.StartDate;
 							updRow["Study days"] = Week.ReadableDays(addGroupForm.Group.StudyDays);
