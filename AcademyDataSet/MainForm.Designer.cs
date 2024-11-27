@@ -32,6 +32,7 @@
 			this.labelGroup = new System.Windows.Forms.Label();
 			this.comboFields = new System.Windows.Forms.ComboBox();
 			this.comboGroups = new System.Windows.Forms.ComboBox();
+			this.btnReset = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			// 
 			// labelStudyField
@@ -71,11 +72,22 @@
 			this.comboGroups.Size = new System.Drawing.Size(192, 21);
 			this.comboGroups.TabIndex = 3;
 			// 
+			// btnReset
+			// 
+			this.btnReset.Location = new System.Drawing.Point(12, 81);
+			this.btnReset.Name = "btnReset";
+			this.btnReset.Size = new System.Drawing.Size(75, 23);
+			this.btnReset.TabIndex = 4;
+			this.btnReset.Text = "Reset";
+			this.btnReset.UseVisualStyleBackColor = true;
+			this.btnReset.Click += new System.EventHandler(this.btnReset_Click);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(305, 112);
+			this.Controls.Add(this.btnReset);
 			this.Controls.Add(this.comboGroups);
 			this.Controls.Add(this.comboFields);
 			this.Controls.Add(this.labelGroup);
@@ -94,6 +106,7 @@
 		private System.Windows.Forms.Label labelGroup;
 		private System.Windows.Forms.ComboBox comboFields;
 		private System.Windows.Forms.ComboBox comboGroups;
+		private System.Windows.Forms.Button btnReset;
 	}
 }
 
