@@ -72,20 +72,42 @@ namespace AcademyDataSet
 			}
 			finally { connection.Close(); }
 
-			foreach (DataRow row in groupsRelatedData.Tables[dsTableFields].Rows)
-			{
-				Console.WriteLine($"{row["id"]}: {row["study_field_name"]}");
-			}
+			//foreach (DataRow row in groupsRelatedData.Tables[dsTableFields].Rows)
+			//{
+			//	Console.WriteLine($"{row["id"]}: {row["study_field_name"]}");
+			//}
 		}
 
 		private void MainForm_Load(object sender, EventArgs e)
 		{
 			InitDataSet();
+			comboFields.DataSource = groupsRelatedData.Tables["StudyFields"];
+			comboFields.DisplayMember = "study_field_name";
+			comboFields.ValueMember = "id";
+			comboFields.SelectedIndex = 0;
+
+			comboGroups.DataSource = groupsRelatedData.Tables["Groups"];
+			comboGroups.DisplayMember = "group_name";
+			comboGroups.ValueMember = "id";
+			comboGroups.SelectedIndex = 0;
+		}
+
+		private void comboFields_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			object selVal = comboFields.SelectedValue;
+			//Console.WriteLine(filter);
+			if (selVal.ToString() != selVal.GetType().ToString())
+			{
+				string filter = $"study_field_id = {comboFields.SelectedValue}";
+				groupsRelatedData.Tables["Groups"].DefaultView.RowFilter = filter;
+			}
 		}
 
 		[DllImport("kernel32.dll")]
 		private static extern bool AllocConsole();
 		[DllImport("kernel32.dll")]
 		private static extern bool FreeConsole();
+
+		
 	}
 }
